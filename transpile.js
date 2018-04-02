@@ -63,7 +63,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             var ext = path.extname(filepath).toLowerCase();
             var inPlugins = filepath.toLowerCase().indexOf("plugin") != -1;
 
-            if (ext == ".pntr") {
+            if (ext == ".pntr") { // import pointer files
                 var nfilepath = fse.readFileSync(filepath).toString();
                 if (fse.existsSync(nfilepath)) {
                     var onlyPath = path.dirname(filepath);
@@ -79,7 +79,9 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             if (ext == ".js" && !inPlugins) {
                 processJS(filepath, destination, minifyJS, header);
             } else if (ext == ".scss") {
-                processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
+                if (!path.basename(filepath).startsWith("_")) { // ignore any library imports for scss
+                    processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
+                }
             } else if (ext == ".json" && !inPlugins) {
                 processJSON(filepath, destination, minifyJSON);
             } else if (ext == ".html" && !inPlugins) {
