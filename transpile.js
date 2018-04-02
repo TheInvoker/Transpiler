@@ -63,7 +63,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             var ext = path.extname(filepath).toLowerCase();
             var inPlugins = filepath.toLowerCase().indexOf("plugin") != -1;
 
-            if (ext == ".pntr" && !inPlugins) {
+            if (ext == ".pntr") {
                 var nfilepath = fse.readFileSync(filepath).toString();
                 if (fse.existsSync(nfilepath)) {
                     var onlyPath = path.dirname(filepath);
