@@ -5,4 +5,4 @@ var instance = new transpiler(["src"], ["public"], function(filepath) {
     var p = path.relative("src", filepath);
     var np = path.join("public", p);
     return np;
-}, "/* header */", true, true, true, true, "");
+}, "/* header */", true, true, true, true, ["scss_lib"]);

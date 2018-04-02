@@ -59,7 +59,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         var destination = dest_func(filepath);
 
         if (evt == 'update') {
-            var ext = path.extname('index.html').toLowerCase();
+            var ext = path.extname(filepath).toLowerCase();
             var inPlugins = filepath.toLowerCase().indexOf("plugin") != -1;
 
             if (ext == ".js" && !inPlugins) {
@@ -104,7 +104,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 // get the new string
                 var new_css = header + '\n\n' + result.css.toString();
                 // get the css file name
-                filepath = replaceExt(filepath, '.css');
+                destination = replaceExt(destination, '.css');
                 // deploy code
                 writeFile(destination, new_css, function(){}, function(){});  
             });       
@@ -124,7 +124,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
 
     function processHTML(filepath, destination, minifyHTML) {
 		readFile(filepath, function(str) {
-            var result = minifyHTML ? minify(str) : str;
+            var result = minifyHTML ? minify(str, {removeAttributeQuotes:false}) : str;
             writeFile(destination, result, function(){}, function(){});
 		}, function() {});  
     }
@@ -134,7 +134,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             console.log('%s changed with %s.', name, evt);
             processFile(evt, name, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
         });
-        console.log("Watching", src_list);
+        console.log("Watching...", src_list);
     }
 
     // delete the destination folder
@@ -152,6 +152,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 }
             });
         });
+        console.log("Cleared all files");
     }
 
     function processAll() {
