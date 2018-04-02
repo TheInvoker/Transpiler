@@ -78,7 +78,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
 
             if (ext == ".js" && !inPlugins) {
                 processJS(filepath, destination, minifyJS, header);
-            } else if (ext == ".scss" && !inPlugins) {
+            } else if (ext == ".scss") {
                 processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
             } else if (ext == ".json" && !inPlugins) {
                 processJSON(filepath, destination, minifyJSON);
