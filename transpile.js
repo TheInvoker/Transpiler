@@ -66,9 +66,9 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 processJS(filepath, destination, minifyJS, header);
             } else if (ext == ".scss" && !inPlugins) {
                 processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
-            } else if (ext == ".json") {
+            } else if (ext == ".json" && !inPlugins) {
                 processJSON(filepath, destination, minifyJSON);
-            } else if (ext == ".html") {
+            } else if (ext == ".html" && !inPlugins) {
                 processHTML(filepath, destination, minifyHTML)
             } else {
                 copyFile(filepath, destination, function(){}, function(){});
