@@ -13,7 +13,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         fse.readFile(filepath, function(err, data) {
             if (err) {
                 console.log(err);
-                return fail(err);
+                return fail();
             }
             success(data.toString());
         });  
@@ -23,7 +23,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         fse.copy(src, destination, function (err) {
             if (err) {
                 console.log(err);
-                return fail(err);
+                return fail();
             }
             success();
         });   
@@ -35,7 +35,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 fse.unlink(filepath,function(err){
                     if (err) {
                         console.log(err);
-                        return fail(err);
+                        return fail();
                     }
                     success();
                 });  
@@ -49,7 +49,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         fse.outputFile(destination, data, function (err) {
             if (err) {
                 console.log(err);
-                return fail(err);
+                return fail();
             }
             success();
         });
@@ -74,7 +74,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 copyFile(filepath, destination, function(){}, function(){});
             }
         } else if (evt == 'remove') {
-            removeFile(filepath, success, fail);
+            removeFile(filepath, function(){}, function(){});
         }
     }
 
