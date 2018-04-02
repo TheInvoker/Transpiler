@@ -10,7 +10,7 @@ var watch = require('node-watch'),
 module.exports = function(src_list, dest_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
 
     function readFile(filepath, success, fail) {
-        fse.readFile(filepath, function read(err, data) {
+        fse.readFile(filepath, function(err, data) {
             if (err) {
                 console.log(err);
                 return fail(err);
@@ -55,7 +55,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         });
     }
 
-    function processFile(evt, filepath, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths) {
+    function processFile(evt, filepath, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         var destination = dest_func(filepath);
 
         if (evt == 'update') {
@@ -129,16 +129,18 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
 		}, function() {});  
     }
 
-    function watchFiles() {
+    function watchFiles(dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         watch(src_list, { recursive: true }, function(evt, name) {
             console.log('%s changed with %s.', name, evt);
-            processFile(evt, name, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
+            processFile(evt, name, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
         });
         console.log("Watching...", src_list);
     }
 
-    // delete the destination folder
-    function clearDestination(success) {
+    /**
+     * Clear all destinations.
+     */ 
+    function clearDestination(dest_list, success) {
         console.log("Clearing all files...");
         var count = 0;
         dest_list.map(function(dest) {
@@ -155,21 +157,24 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         console.log("Cleared all files");
     }
 
-    function processAll() {
+    /**
+     * Process all files.
+     */
+    function processAll(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         console.log("Initializing...");
         src_list.map(function(src) {
             klaw(src).on('data', function (item) {
                 var dir = fse.lstatSync(item.path).isDirectory();
                 if (!dir) {
                     console.log("Processing", item.path);
-                    processFile('update', item.path, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
+                    processFile('update', item.path, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
                 }
             });
         });
     }
 
-    clearDestination(function() {
-        processAll();
-        watchFiles();
+    clearDestination(dest_list, function() {
+        processAll(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
+        watchFiles(dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
     });
 };
