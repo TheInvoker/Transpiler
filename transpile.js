@@ -59,7 +59,22 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         var destination = dest_func(filepath);
 
         if (evt == 'update') {
+            
             var ext = path.extname(filepath).toLowerCase();
+
+            if (ext == ".pntr") {
+                var nfilepath = fse.readFileSync(filepath).toString();
+                if (fse.existsSync(nfilepath)) {
+                    var onlyPath = path.dirname(filepath);
+                    filepath = nfilepath;
+                    ext = path.extname(filepath).toLowerCase();
+                    var name = path.basename(filepath);
+                    destination = dest_func(path.join(onlyPath, name));
+                } else {
+                    console.log("Pointer file does not point to existing file", filepath, nfilepath);
+                }
+            }
+
             var inPlugins = filepath.toLowerCase().indexOf("plugin") != -1;
 
             if (ext == ".js" && !inPlugins) {
