@@ -1,0 +1,42 @@
+{
+  "name": "transpiler",
+  "version": "0.0.1",
+  "description": "A node.js tool to transpile web apps.",
+  "author": "Ryan D'Souza <rydsouza82@gmail.com>",
+  "contributors": [],
+  "scripts": {
+    "start": "node transpile.js"
+  },
+  "main": "transpile.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheInvoker/Transpiler"
+  },
+  "bugs": {
+    "url": "https://github.com/TheInvoker/Transpiler/issues"
+  },
+  "keywords": [
+    "transpile",
+    "transpiler",
+    "sass",
+    "scss",
+    "js",
+    "html",
+    "json",
+    "css",
+    "watch"
+  ],
+  "dependencies": {
+    "html-minifier":"*",
+    "fs-extra": "*",
+    "klaw": "*",
+    "node-sass": "*",
+    "node-watch": "*",
+    "replace-ext": "*",
+    "uglify-es": "*"
+  },
+  "private": false,
+  "subdomain": "tp",
+  "analyze": false,
+  "license": "MIT"
+}
