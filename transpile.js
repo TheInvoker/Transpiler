@@ -7,10 +7,10 @@ var watch = require('node-watch'),
     minify = require('html-minifier').minify,
     sass = require('node-sass');
 
-module.exports = function(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
+module.exports = function(src_list, dest_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
 
     function readFile(filepath, success, fail) {
-        fs.readFile(filepath, function read(err, data) {
+        fse.readFile(filepath, function read(err, data) {
             if (err) {
                 console.log(err);
                 return fail(err);
@@ -88,7 +88,7 @@ module.exports = function(src_list, dest_func, header, minifyJS, minifyCSS, mini
 			// attach some headers
 			str = '"use strict";\n\n' + header + '\n\n' + str;
 			// deploy code
-			writeFile(destination, str);            
+			writeFile(destination, str, function(){}, function(){});            
 		}, function() {});
     }
 
@@ -106,7 +106,7 @@ module.exports = function(src_list, dest_func, header, minifyJS, minifyCSS, mini
                 // get the css file name
                 filepath = replaceExt(filepath, '.css');
                 // deploy code
-                writeFile(destination, new_css);  
+                writeFile(destination, new_css, function(){}, function(){});  
             });       
 		}, function() {});
     }
@@ -118,21 +118,57 @@ module.exports = function(src_list, dest_func, header, minifyJS, minifyCSS, mini
             // convert to json
             var json = minifyJSON ? JSON.stringify(obj) : JSON.stringify(obj, null, 4);
             // deploy it
-            writeString(destination, json);
+            writeFile(destination, json, function(){}, function(){});
         }, function() {});
     }
 
     function processHTML(filepath, destination, minifyHTML) {
 		readFile(filepath, function(str) {
             var result = minifyHTML ? minify(str) : str;
-            writeString(destination, result);
+            writeFile(destination, result, function(){}, function(){});
 		}, function() {});  
     }
 
-    watch(src_list, { recursive: true }, function(evt, name) {
-        console.log('%s changed with %s.', name, evt);
-        processFile(evt, name, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
-    });
+    function watchFiles() {
+        watch(src_list, { recursive: true }, function(evt, name) {
+            console.log('%s changed with %s.', name, evt);
+            processFile(evt, name, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
+        });
+        console.log("Watching", src_list);
+    }
 
-    console.log("Watching", src_list);
+    // delete the destination folder
+    function clearDestination(success) {
+        console.log("Clearing all files...");
+        var count = 0;
+        dest_list.map(function(dest) {
+            fse.remove(dest, err => {
+                count++;
+                if (err) {
+                    console.error(err);
+                }
+                if (count == dest_list.length) {
+                    success();
+                }
+            });
+        });
+    }
+
+    function processAll() {
+        console.log("Initializing...");
+        src_list.map(function(src) {
+            klaw(src).on('data', function (item) {
+                var dir = fse.lstatSync(item.path).isDirectory();
+                if (!dir) {
+                    console.log("Processing", item.path);
+                    processFile('update', item.path, dest_func, minifyJS, minifyCSS, minifyJSON, minifyHTML, header, includeSASSPaths);
+                }
+            });
+        });
+    }
+
+    clearDestination(function() {
+        processAll();
+        watchFiles();
+    });
 };
