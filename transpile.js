@@ -137,8 +137,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
                 try {
                     var obj = JSON.parse(str);
                 } catch (err) {
-                    console.log("ERROR", "\"" + err.message + "\"", filepath);
-                    return;
+                    return console.log("ERROR", "\"" + err.message + "\"", filepath);
                 }
                 // convert to json
                 var json = minifyJSON ? JSON.stringify(obj) : JSON.stringify(obj, null, 4);
