@@ -130,7 +130,12 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
     function processJSON(filepath, destination, minifyJSON) {
         readFile(filepath, function(str) {
             // read it into an object
-            var obj = JSON.parse(str);
+            try {
+                var obj = JSON.parse(str);
+            } catch (err) {
+                console.log("ERROR", "\"" + err.message + "\"", filepath);
+                return;
+            }
             // convert to json
             var json = minifyJSON ? JSON.stringify(obj) : JSON.stringify(obj, null, 4);
             // deploy it
