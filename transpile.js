@@ -81,7 +81,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             } else if (ext == ".scss") {
                 if (path.basename(filepath).startsWith("_")) {
                     console.log("SASS library file changed, processing all SASS files...");
-                    processAll(/^[^_].*\.scss$/i, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths)
+                    processAll(/^[^_].*\.scss$/i, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
                 } else {
                     processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
                 }
