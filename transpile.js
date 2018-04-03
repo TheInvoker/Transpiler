@@ -182,7 +182,6 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             klaw(src).on('data', function (item) {
                 var dir = fse.lstatSync(item.path).isDirectory();
                 if (!dir) {
-                    console.log("Processing", item.path);
                     processFile('update', item.path, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
                 }
             });
