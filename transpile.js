@@ -55,7 +55,7 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
         });
     }
 
-    function processFile(evt, filepath, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
+    function processFile(evt, filepath, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         var destination = dest_func(filepath);
 
         if (evt == 'update') {
@@ -79,7 +79,10 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
             if (ext == ".js" && !inPlugins) {
                 processJS(filepath, destination, minifyJS, header);
             } else if (ext == ".scss") {
-                if (!path.basename(filepath).startsWith("_")) { // ignore any library imports for scss
+                if (path.basename(filepath).startsWith("_")) {
+                    console.log("SASS library file changed, processing all SASS files...");
+                    processAll(/^[^_].*\.scss$/i, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths)
+                } else {
                     processCSS(filepath, destination, minifyCSS, header, includeSASSPaths);
                 }
             } else if (ext == ".json" && !inPlugins) {
@@ -154,10 +157,10 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
 		}, function() {});  
     }
 
-    function watchFiles(dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
+    function watchFiles(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         watch(src_list, { recursive: true }, function(evt, name) {
             console.log('%s changed with %s.', name, evt);
-            processFile(evt, name, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
+            processFile(evt, name, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
         });
         console.log("Watching...", src_list);
     }
@@ -185,20 +188,21 @@ module.exports = function(src_list, dest_list, dest_func, header, minifyJS, mini
     /**
      * Process all files.
      */
-    function processAll(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
+    function processAll(filter, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths) {
         console.log("Initializing...");
         src_list.map(function(src) {
             klaw(src).on('data', function (item) {
                 var dir = fse.lstatSync(item.path).isDirectory();
-                if (!dir) {
-                    processFile('update', item.path, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
+                var filename = path.basename(item.path);
+                if (!dir && filename.match(filter)) {
+                    processFile('update', item.path, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
                 }
             });
         });
     }
 
     clearDestination(dest_list, function() {
-        processAll(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
-        watchFiles(dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
+        processAll(/^(?!_.*\.scss$).*$/i, src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
+        watchFiles(src_list, dest_func, header, minifyJS, minifyCSS, minifyJSON, minifyHTML, includeSASSPaths);
     });
 };
